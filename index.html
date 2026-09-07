@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Galleries — Stealth Keqing</title>
+<meta name="description" content="The photo archives. Choose one and it opens.">
+<meta property="og:title" content="Galleries — Stealth Keqing">
+<meta property="og:description" content="The photo archives.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,700;1,6..96,500&family=Chakra+Petch:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/*
+ * The other side of the door, and it should feel like it.
+ *
+ * The project index is a console: cold light, hard grid, two neons doing
+ * signal work. This is a projection room - warm light through dust, a beam
+ * that moves, high-contrast display type. Same house, different room, so
+ * arriving here is unmistakably arriving somewhere else.
+ *
+ * Nothing here holds a photograph. Every tile is a door to the gallery's own
+ * site: references, not copies.
+ */
+:root{
+  --pitch:#08050e;
+  --panel:#120c1c;
+  --panel-2:#1a1128;
+  --edge:#2a1d3d;
+  --edge-hot:#43305e;
+
+  --text:#f2ecf7;
+  --text-dim:#a294b5;
+  --text-faint:#6d6080;
+
+  --gold:#ffb020;
+  --ember:#ff6b3d;
+  --violet:#b46bff;
+  --mint:#4ade80;
+
+  --sans:"Chakra Petch",ui-sans-serif,system-ui,"Segoe UI",Roboto,sans-serif;
+  --display:"Bodoni Moda",ui-serif,Georgia,"Times New Roman",serif;
+  --mono:"JetBrains Mono",ui-monospace,"SF Mono",Consolas,monospace;
+}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+body{
+  margin:0;background:var(--pitch);color:var(--text);
+  font:400 15px/1.6 var(--sans);
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+
+/* ---------- the beam ---------- */
+
+.room{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.beam{
+  position:absolute;top:-40vh;left:50%;width:120vw;height:150vh;
+  transform-origin:50% 0;transform:translateX(-50%) rotate(-8deg);
+  background:conic-gradient(from 178deg at 50% 0%,transparent 0deg,rgba(255,176,32,.15) 6deg,rgba(180,107,255,.10) 13deg,transparent 20deg);
+  filter:blur(28px);animation:sweep 19s ease-in-out infinite;
+}
+@keyframes sweep{0%,100%{transform:translateX(-50%) rotate(-9deg)}50%{transform:translateX(-50%) rotate(9deg)}}
+.glow{
+  position:absolute;width:70vw;height:70vw;left:15vw;top:-26vw;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,107,61,.20),transparent 62%);
+  filter:blur(80px);animation:pulse 13s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:.85;transform:scale(1.1)}}
+
+/* Dust in the light. Cheap, and it does more for the mood than anything else. */
+.grain{
+  position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.055;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:jitter 700ms steps(3) infinite;
+}
+@keyframes jitter{0%{transform:translate(0,0)}33%{transform:translate(-2px,1px)}66%{transform:translate(1px,-2px)}}
+
+.page{position:relative;z-index:2}
+.wrap{width:100%;max-width:1080px;margin:0 auto;padding:0 24px}
+
+/* ---------- masthead ---------- */
+
+header.top{padding:92px 0 12px;text-align:center}
+.back{
+  display:inline-flex;align-items:center;gap:8px;text-decoration:none;
+  font:500 11px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;
+  color:var(--text-faint);border:1px solid var(--edge);border-radius:999px;
+  padding:9px 15px;margin-bottom:30px;transition:color .2s,border-color .2s;
+}
+.back:hover{color:var(--gold);border-color:var(--edge-hot)}
+h1{
+  font:700 clamp(46px,10vw,116px)/.9 var(--display);margin:0;letter-spacing:-.02em;
+}
+h1 em{
+  font-style:italic;font-weight:500;
+  color:var(--gold);text-shadow:0 0 44px rgba(255,176,32,.5);
+}
+.sub{color:var(--text-dim);font-size:17px;margin:22px auto 0;max-width:40ch;text-wrap:balance}
+.note{
+  margin:16px auto 0;max-width:52ch;color:var(--text-faint);
+  font:400 12px/1.65 var(--mono);
+}
+
+/* ---------- the doors ---------- */
+
+.doors{display:grid;gap:22px;margin:54px 0 40px}
+.door{
+  position:relative;display:block;text-decoration:none;color:inherit;overflow:hidden;
+  background:linear-gradient(140deg,var(--panel),var(--panel-2));
+  border:1px solid var(--edge);border-radius:20px;padding:34px 34px 30px;
+  transition:transform .26s cubic-bezier(.2,.7,.3,1),border-color .26s,box-shadow .26s;
+  animation:rise .6s cubic-bezier(.2,.7,.3,1) both;
+}
+@keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+.door::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(112deg,transparent 42%,rgba(255,176,32,.16) 50%,transparent 58%);
+  background-size:260% 100%;background-position:135% 0;transition:background-position .8s ease;
+}
+.door:hover,.door:focus-visible{
+  transform:translateY(-6px);border-color:var(--edge-hot);outline:none;
+  box-shadow:0 26px 60px -28px #000,0 0 46px -20px var(--tint,var(--gold));
+}
+.door:hover::after,.door:focus-visible::after{background-position:-70% 0}
+
+.door-head{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.door h2{font:700 clamp(28px,4.4vw,44px)/1.05 var(--display);margin:0;flex:1;min-width:220px}
+.state{
+  font:500 10.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
+  border-radius:999px;padding:8px 13px;white-space:nowrap;
+  border:1px solid currentColor;
+}
+.state.on{color:var(--mint)}
+.state.off{color:var(--ember)}
+.door p{margin:14px 0 0;color:var(--text-dim);font-size:15px;max-width:56ch}
+.figures{
+  display:flex;gap:24px;flex-wrap:wrap;margin:22px 0 0;
+  font-family:var(--mono);
+}
+.fig b{display:block;font:500 22px/1 var(--mono);color:var(--gold)}
+.fig span{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-faint)}
+
+/* The parts of a gallery, as a strip of doors of their own. */
+.strip{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0 0}
+.part{
+  font:400 11px/1 var(--mono);color:var(--text-dim);text-decoration:none;
+  border:1px solid var(--edge);border-radius:7px;padding:8px 11px;
+  transition:color .18s,border-color .18s,transform .18s;
+}
+.part:hover{color:var(--gold);border-color:var(--edge-hot);transform:translateY(-2px)}
+
+.offline-why{
+  margin:20px 0 0;padding:13px 16px;border-radius:11px;
+  background:rgba(255,107,61,.08);border:1px solid rgba(255,107,61,.25);
+  color:var(--text-dim);font-size:13px;
+}
+
+footer{
+  border-top:1px solid var(--edge);padding:34px 0 60px;text-align:center;
+  color:var(--text-faint);font:400 12px/1.7 var(--mono);
+}
+footer a{color:var(--text-dim);text-decoration:none}
+footer a:hover{color:var(--gold)}
+
+@media (prefers-reduced-motion: reduce){
+  .beam,.glow,.grain,.door{animation:none}
+  .door::after{transition:none}
+}
+@media (max-width:640px){
+  header.top{padding:56px 0 8px}
+  .door{padding:26px 22px 24px}
+}
+</style>
+</head>
+<body>
+
+<div class="room" aria-hidden="true"><span class="beam"></span><span class="glow"></span></div>
+<div class="grain" aria-hidden="true"></div>
+
+<div class="page">
+  <header class="top">
+    <div class="wrap">
+      <a class="back" href="https://arnav1771.github.io/">&larr; All projects</a>
+      <h1>The <em>archives</em></h1>
+      <p class="sub">Choose a gallery. It opens where it lives.</p>
+      <p class="note">Nothing is copied here — every tile is a door to the gallery's own site.</p>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <main class="doors" id="doors"></main>
+  </div>
+
+  <footer>
+    <div class="wrap">
+      <p style="margin:0"><a href="https://github.com/Arnav1771">github.com/Arnav1771</a></p>
+      <p style="margin:6px 0 0">Published by Stealth Keqing</p>
+    </div>
+  </footer>
+</div>
+
+<script>
+/*
+ * Doors only. This page knows where each gallery lives and nothing about what
+ * is inside it, which is the point - the archives are large, and copying them
+ * to make an index would be the wrong trade twice over.
+ */
+const doors = document.getElementById("doors");
+const TINTS = { prinda: "#ffb020", anno: "#b46bff", sam: "#ff6b3d" };
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+function doorFor(g, i) {
+  const tint = TINTS[g.key] || "#ffb020";
+  const parts = (g.openable || [])
+    .map((p) => `<a class="part" href="${esc(p.url)}">${esc(p.name.replace(/^.*?-/, ""))}</a>`)
+    .join("");
+
+  // A gallery whose own site is down still gets a door - it just says so,
+  // rather than pretending, and it starts working again on its own.
+  const body = g.live
+    ? (parts ? `<div class="strip">${parts}</div>` : "")
+    : `<p class="offline-why">This archive's site is offline while its hosting is sorted out.
+         The photographs are safe; the door opens again on its own.</p>`;
+
+  return `
+    <a class="door" href="${esc(g.url)}" style="--tint:${tint};animation-delay:${i * 110}ms">
+      <div class="door-head">
+        <h2>${esc(g.title)}</h2>
+        <span class="state ${g.live ? "on" : "off"}">${g.live ? "open" : "offline"}</span>
+      </div>
+      <p>${esc(g.blurb || "")}</p>
+      <div class="figures">
+        ${g.parts ? `<span class="fig"><b>${g.parts}</b><span>volumes</span></span>` : ""}
+        ${g.partsLive ? `<span class="fig"><b>${g.partsLive}</b><span>reachable</span></span>` : ""}
+      </div>
+      ${body}
+    </a>`;
+}
+
+fetch("data.json")
+  .then((r) => r.json())
+  .then((d) => {
+    const list = d.galleries || [];
+    doors.innerHTML = list.length
+      ? list.map(doorFor).join("")
+      : `<p style="text-align:center;color:var(--text-faint);font-family:var(--mono)">No galleries listed.</p>`;
+  })
+  .catch(() => {
+    doors.innerHTML = `<p style="text-align:center;color:var(--text-faint);font-family:var(--mono)">The index could not be loaded.</p>`;
+  });
+</script>
+
+</body>
+</html>
