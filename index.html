@@ -124,6 +124,10 @@ h1 em{
 .door:hover::after,.door:focus-visible::after{background-position:-70% 0}
 
 .door-open{display:block;text-decoration:none;color:inherit}
+/* A door with nowhere to go should not behave like one. */
+.door-open.shut{cursor:default}
+.door.is-shut{opacity:.72}
+.door.is-shut:hover,.door.is-shut:focus-visible{transform:none}
 .door-head{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap}
 .door-title{
   font:700 clamp(28px,4.4vw,44px)/1.05 var(--display);
@@ -230,9 +234,10 @@ function doorFor(g, i) {
     : `<p class="offline-why">This archive's site is offline while its hosting is sorted out.
          The photographs are safe; the door opens again on its own.</p>`;
 
-  return `
-    <article class="door" style="--tint:${tint};animation-delay:${i * 110}ms">
-      <a class="door-open" href="${esc(g.url)}">
+  // An offline door is not a link. It used to be one, pointing at a Pages URL
+  // that answers 404 now that the archives are private - so the tile invited a
+  // click and delivered a dead end. A door with nowhere to go says so instead.
+  const body = `
         <span class="door-head">
           <span class="door-title">${esc(g.title)}</span>
           <span class="state ${g.live ? "on" : "off"}">${g.live ? "open" : "offline"}</span>
@@ -241,8 +246,15 @@ function doorFor(g, i) {
         <span class="figures">
           ${g.parts ? `<span class="fig"><b>${g.parts}</b><span>volumes</span></span>` : ""}
           ${g.partsLive ? `<span class="fig"><b>${g.partsLive}</b><span>reachable</span></span>` : ""}
-        </span>
-      </a>
+        </span>`;
+
+  const door = g.live
+    ? `<a class="door-open" href="${esc(g.url)}">${body}</a>`
+    : `<div class="door-open shut" aria-disabled="true">${body}</div>`;
+
+  return `
+    <article class="door${g.live ? "" : " is-shut"}" style="--tint:${tint};animation-delay:${i * 110}ms">
+      ${door}
       ${aside}
     </article>`;
 }
