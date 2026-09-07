@@ -123,8 +123,13 @@ h1 em{
 }
 .door:hover::after,.door:focus-visible::after{background-position:-70% 0}
 
+.door-open{display:block;text-decoration:none;color:inherit}
 .door-head{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap}
-.door h2{font:700 clamp(28px,4.4vw,44px)/1.05 var(--display);margin:0;flex:1;min-width:220px}
+.door-title{
+  font:700 clamp(28px,4.4vw,44px)/1.05 var(--display);
+  flex:1;min-width:220px;
+}
+.blurb{display:block;margin:14px 0 0;color:var(--text-dim);font-size:15px;max-width:56ch}
 .state{
   font:500 10.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
   border-radius:999px;padding:8px 13px;white-space:nowrap;
@@ -132,7 +137,6 @@ h1 em{
 }
 .state.on{color:var(--mint)}
 .state.off{color:var(--ember)}
-.door p{margin:14px 0 0;color:var(--text-dim);font-size:15px;max-width:56ch}
 .figures{
   display:flex;gap:24px;flex-wrap:wrap;margin:22px 0 0;
   font-family:var(--mono);
@@ -211,30 +215,35 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&l
 
 function doorFor(g, i) {
   const tint = TINTS[g.key] || "#ffb020";
+
+  // The volume links cannot live inside the door's own link: an anchor inside
+  // an anchor is invalid, and the browser resolves it by cutting the outer one
+  // in half - which produced a phantom empty tile. So the door is a container
+  // and the link is a child of it.
   const parts = (g.openable || [])
     .map((p) => `<a class="part" href="${esc(p.url)}">${esc(p.name.replace(/^.*?-/, ""))}</a>`)
     .join("");
 
-  // A gallery whose own site is down still gets a door - it just says so,
-  // rather than pretending, and it starts working again on its own.
-  const body = g.live
+  const aside = g.live
     ? (parts ? `<div class="strip">${parts}</div>` : "")
     : `<p class="offline-why">This archive's site is offline while its hosting is sorted out.
          The photographs are safe; the door opens again on its own.</p>`;
 
   return `
-    <a class="door" href="${esc(g.url)}" style="--tint:${tint};animation-delay:${i * 110}ms">
-      <div class="door-head">
-        <h2>${esc(g.title)}</h2>
-        <span class="state ${g.live ? "on" : "off"}">${g.live ? "open" : "offline"}</span>
-      </div>
-      <p>${esc(g.blurb || "")}</p>
-      <div class="figures">
-        ${g.parts ? `<span class="fig"><b>${g.parts}</b><span>volumes</span></span>` : ""}
-        ${g.partsLive ? `<span class="fig"><b>${g.partsLive}</b><span>reachable</span></span>` : ""}
-      </div>
-      ${body}
-    </a>`;
+    <article class="door" style="--tint:${tint};animation-delay:${i * 110}ms">
+      <a class="door-open" href="${esc(g.url)}">
+        <span class="door-head">
+          <span class="door-title">${esc(g.title)}</span>
+          <span class="state ${g.live ? "on" : "off"}">${g.live ? "open" : "offline"}</span>
+        </span>
+        <span class="blurb">${esc(g.blurb || "")}</span>
+        <span class="figures">
+          ${g.parts ? `<span class="fig"><b>${g.parts}</b><span>volumes</span></span>` : ""}
+          ${g.partsLive ? `<span class="fig"><b>${g.partsLive}</b><span>reachable</span></span>` : ""}
+        </span>
+      </a>
+      ${aside}
+    </article>`;
 }
 
 fetch("data.json")
