@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ANNO Gallery</title>
+<meta name="description" content="The ANNO archive — photographs and films, 2020 to 2025.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,700;1,6..96,500&family=Chakra+Petch:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/*
+ * A gallery that actually has something in it.
+ *
+ * The archive is four gigabytes and mostly film, so the governing rule is that
+ * nothing loads until somebody asks for it: photographs lazily, films not at
+ * all until opened. A grid that eagerly mounted 121 video elements would take
+ * the page down on any connection, which is the failure mode this replaces.
+ *
+ * The look continues the projection room next door - warm light, Bodoni,
+ * grain - because this is a room in that building, not a different one.
+ */
+:root{
+  --pitch:#08050e;
+  --panel:#120c1c;
+  --panel-2:#1a1128;
+  --edge:#2a1d3d;
+  --edge-hot:#43305e;
+  --text:#f2ecf7;
+  --text-dim:#a294b5;
+  --text-faint:#6d6080;
+  --gold:#ffb020;
+  --ember:#ff6b3d;
+  --violet:#b46bff;
+  --mint:#4ade80;
+  --sans:"Chakra Petch",ui-sans-serif,system-ui,"Segoe UI",Roboto,sans-serif;
+  --display:"Bodoni Moda",ui-serif,Georgia,"Times New Roman",serif;
+  --mono:"JetBrains Mono",ui-monospace,"SF Mono",Consolas,monospace;
+}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+body{
+  margin:0;background:var(--pitch);color:var(--text);
+  font:400 15px/1.6 var(--sans);-webkit-font-smoothing:antialiased;
+}
+.grain{
+  position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.wash{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(255,176,32,.16),transparent 65%);
+}
+.page{position:relative;z-index:2}
+.wrap{width:100%;max-width:1400px;margin:0 auto;padding:0 22px}
+
+/* ---------- head ---------- */
+
+header{padding:56px 0 26px;text-align:center}
+.back{
+  display:inline-flex;align-items:center;gap:8px;text-decoration:none;
+  font:500 11px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;
+  color:var(--text-faint);border:1px solid var(--edge);border-radius:999px;
+  padding:9px 15px;margin-bottom:26px;transition:color .2s,border-color .2s;
+}
+.back:hover{color:var(--gold);border-color:var(--edge-hot)}
+h1{font:700 clamp(42px,8vw,88px)/.95 var(--display);margin:0;letter-spacing:-.02em}
+h1 em{font-style:italic;font-weight:500;color:var(--gold);text-shadow:0 0 40px rgba(255,176,32,.45)}
+.lede{color:var(--text-dim);margin:16px auto 0;max-width:46ch}
+
+.tally{display:flex;gap:26px;justify-content:center;flex-wrap:wrap;margin:26px 0 0;font-family:var(--mono)}
+.tally b{display:block;font:500 26px/1 var(--mono);color:var(--gold)}
+.tally span{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-faint)}
+
+/* ---------- controls ---------- */
+
+.bar{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;margin:34px 0 26px}
+.pill{
+  font:500 11.5px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;
+  color:var(--text-dim);background:var(--panel);border:1px solid var(--edge);
+  border-radius:999px;padding:10px 15px;cursor:pointer;transition:.2s;
+}
+.pill:hover{color:var(--text);border-color:var(--edge-hot)}
+.pill[aria-pressed="true"]{color:var(--pitch);background:var(--gold);border-color:var(--gold);box-shadow:0 0 22px rgba(255,176,32,.35)}
+.pill:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
+
+/* ---------- the grid ---------- */
+
+.grid{
+  display:grid;gap:12px;padding:0 0 70px;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+}
+.tile{
+  position:relative;aspect-ratio:4/3;border-radius:12px;overflow:hidden;
+  background:linear-gradient(150deg,var(--panel),var(--panel-2));
+  border:1px solid var(--edge);cursor:pointer;padding:0;
+  transition:transform .22s cubic-bezier(.2,.7,.3,1),border-color .22s,box-shadow .22s;
+}
+.tile:hover,.tile:focus-visible{
+  transform:translateY(-4px) scale(1.012);border-color:var(--gold);outline:none;
+  box-shadow:0 18px 40px -20px #000,0 0 30px -12px var(--gold);
+}
+.tile img{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .45s}
+.tile img.in{opacity:1}
+.tile .film{
+  position:absolute;inset:0;display:grid;place-items:center;
+  background:radial-gradient(circle at 50% 45%,rgba(255,176,32,.16),transparent 62%);
+}
+.play{
+  width:52px;height:52px;border-radius:50%;
+  border:1.5px solid var(--gold);display:grid;place-items:center;
+  background:rgba(8,5,14,.55);box-shadow:0 0 26px rgba(255,176,32,.3);
+  transition:transform .2s;
+}
+.tile:hover .play{transform:scale(1.1)}
+.play::after{
+  content:"";width:0;height:0;margin-left:4px;
+  border-left:14px solid var(--gold);border-top:9px solid transparent;border-bottom:9px solid transparent;
+}
+.stamp{
+  position:absolute;left:9px;bottom:9px;right:9px;display:flex;gap:7px;align-items:center;
+  font:400 10px/1 var(--mono);color:var(--text);
+  text-shadow:0 1px 6px #000;pointer-events:none;
+}
+.stamp .kind{
+  border:1px solid rgba(255,255,255,.28);border-radius:4px;padding:3px 5px;
+  background:rgba(8,5,14,.5);
+}
+.stamp .mb{margin-left:auto;color:var(--text-dim)}
+
+.more{display:grid;place-items:center;padding:0 0 80px}
+.more button{
+  font:500 12px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--pitch);background:var(--gold);border:0;border-radius:9px;
+  padding:15px 26px;cursor:pointer;box-shadow:0 0 30px rgba(255,176,32,.32);
+}
+.more button:hover{transform:translateY(-2px)}
+
+/* ---------- the missing photographs ---------- */
+
+.aside{
+  border:1px solid rgba(255,107,61,.28);background:rgba(255,107,61,.07);
+  border-radius:14px;padding:20px 24px;margin:0 0 34px;
+}
+.aside h3{margin:0 0 7px;font:700 20px/1.2 var(--display);color:var(--ember)}
+.aside p{margin:0;color:var(--text-dim);font-size:14px;max-width:74ch}
+
+/* ---------- lightbox ---------- */
+
+.viewer{
+  position:fixed;inset:0;z-index:40;display:grid;place-items:center;
+  background:rgba(4,2,8,.94);backdrop-filter:blur(8px);padding:26px;
+}
+.viewer figure{margin:0;max-width:100%;max-height:100%;display:grid;gap:12px;justify-items:center}
+.viewer img,.viewer video{
+  max-width:min(1200px,92vw);max-height:80vh;border-radius:12px;
+  box-shadow:0 30px 90px -30px #000;background:#000;
+}
+.viewer figcaption{font:400 12px/1.6 var(--mono);color:var(--text-dim);text-align:center}
+.viewer figcaption a{color:var(--gold)}
+.shut{
+  position:absolute;top:18px;right:20px;width:44px;height:44px;border-radius:50%;
+  background:var(--panel);border:1px solid var(--edge);color:var(--text);
+  font-size:20px;cursor:pointer;line-height:1;
+}
+.shut:hover{border-color:var(--gold);color:var(--gold)}
+.step{
+  position:absolute;top:50%;transform:translateY(-50%);
+  width:52px;height:52px;border-radius:50%;background:var(--panel);
+  border:1px solid var(--edge);color:var(--text);font-size:22px;cursor:pointer;
+}
+.step:hover{border-color:var(--gold);color:var(--gold)}
+.step.prev{left:18px}
+.step.next{right:18px}
+
+footer{border-top:1px solid var(--edge);padding:30px 0 56px;text-align:center;color:var(--text-faint);font:400 12px/1.7 var(--mono)}
+footer a{color:var(--text-dim);text-decoration:none}
+footer a:hover{color:var(--gold)}
+
+@media (prefers-reduced-motion: reduce){
+  .tile,.tile img,.play{transition:none}
+}
+@media (max-width:640px){
+  .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px}
+  .step{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="wash" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<div class="page">
+  <header>
+    <div class="wrap">
+      <a class="back" href="../">&larr; All galleries</a>
+      <h1>ANNO <em>Gallery</em></h1>
+      <p class="lede">Photographs and films, gathered from every volume of the archive.</p>
+      <div class="tally" id="tally"></div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="bar" id="bar" role="group" aria-label="Filter"></div>
+    <div id="aside-slot"></div>
+    <main class="grid" id="grid"></main>
+    <div class="more" id="more" hidden><button type="button">Show more</button></div>
+  </div>
+
+  <footer>
+    <div class="wrap">
+      <p style="margin:0">Media is served from each volume's own site — nothing is copied here.</p>
+      <p style="margin:6px 0 0"><a href="https://github.com/Arnav1771">github.com/Arnav1771</a> · Stealth Keqing</p>
+    </div>
+  </footer>
+</div>
+
+<div class="viewer" id="viewer" hidden>
+  <button class="shut" id="shut" aria-label="Close">&times;</button>
+  <button class="step prev" id="prev" aria-label="Previous">&lsaquo;</button>
+  <button class="step next" id="next" aria-label="Next">&rsaquo;</button>
+  <figure id="stage"></figure>
+</div>
+
+<script>
+/*
+ * Nothing loads until it is asked for.
+ *
+ * The archive is four gigabytes and mostly film. Photographs are lazy, which
+ * the browser handles; films are not mounted at all - a tile is a poster and a
+ * play button, and the video element is only created when somebody opens it.
+ * Mounting 121 videos at once is what makes a gallery like this unusable, and
+ * it is the reason this one exists.
+ */
+const grid = document.getElementById("grid");
+const bar = document.getElementById("bar");
+const tally = document.getElementById("tally");
+const moreBox = document.getElementById("more");
+const viewer = document.getElementById("viewer");
+const stage = document.getElementById("stage");
+
+const PAGE = 48;
+let all = [];
+let view = [];
+let shown = 0;
+let filter = "all";
+let at = -1;
+
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const mb = (n) => (n > 1e9 ? (n / 1e9).toFixed(1) + " GB" : Math.round(n / 1e6) + " MB");
+
+function tileFor(item, i) {
+  const body = item.kind === "image"
+    ? `<img loading="lazy" decoding="async" src="${esc(item.url)}" alt="${esc(item.name)}">`
+    : `<span class="film"><span class="play"></span></span>`;
+  return `
+    <button class="tile" type="button" data-i="${i}" aria-label="${esc(item.name)}">
+      ${body}
+      <span class="stamp">
+        <span class="kind">${item.kind === "video" ? "film" : "photo"}</span>
+        ${item.date ? `<span>${esc(item.date)}</span>` : ""}
+        <span class="mb">${mb(item.size)}</span>
+      </span>
+    </button>`;
+}
+
+function paint(reset) {
+  if (reset) { grid.innerHTML = ""; shown = 0; }
+  const next = view.slice(shown, shown + PAGE);
+  grid.insertAdjacentHTML("beforeend", next.map((it) => tileFor(it, all.indexOf(it))).join(""));
+  shown += next.length;
+  moreBox.hidden = shown >= view.length;
+  // Fade each photograph in as it decodes, so the grid does not flash.
+  for (const img of grid.querySelectorAll("img:not([data-wired])")) {
+    img.dataset.wired = "1";
+    if (img.complete && img.naturalWidth) img.classList.add("in");
+    else img.addEventListener("load", () => img.classList.add("in"), { once: true });
+    img.addEventListener("error", () => { img.closest(".tile").style.opacity = ".35"; }, { once: true });
+  }
+}
+
+function apply() {
+  view = all.filter((i) => {
+    if (filter === "all") return true;
+    if (filter === "photo") return i.kind === "image";
+    if (filter === "film") return i.kind === "video";
+    return i.date.startsWith(filter);
+  });
+  paint(true);
+}
+
+function open(i) {
+  at = i;
+  const item = all[i];
+  if (!item) return;
+  stage.innerHTML = item.kind === "image"
+    ? `<img src="${esc(item.url)}" alt="${esc(item.name)}">`
+    : `<video src="${esc(item.url)}" controls autoplay playsinline preload="metadata"></video>`;
+  stage.insertAdjacentHTML("beforeend",
+    `<figcaption>${esc(item.name)} · ${esc(item.date || "undated")} · ${mb(item.size)}
+       · <a href="${esc(item.url)}" target="_blank" rel="noopener">open the file</a></figcaption>`);
+  viewer.hidden = false;
+  document.body.style.overflow = "hidden";
+}
+
+function shut() {
+  viewer.hidden = true;
+  stage.innerHTML = "";           // stops a playing film rather than leaving it running
+  document.body.style.overflow = "";
+}
+
+function step(by) {
+  const here = view.indexOf(all[at]);
+  const next = view[here + by];
+  if (next) open(all.indexOf(next));
+}
+
+grid.addEventListener("click", (e) => {
+  const t = e.target.closest(".tile");
+  if (t) open(Number(t.dataset.i));
+});
+moreBox.addEventListener("click", () => paint(false));
+document.getElementById("shut").addEventListener("click", shut);
+document.getElementById("prev").addEventListener("click", () => step(-1));
+document.getElementById("next").addEventListener("click", () => step(1));
+viewer.addEventListener("click", (e) => { if (e.target === viewer) shut(); });
+document.addEventListener("keydown", (e) => {
+  if (viewer.hidden) return;
+  if (e.key === "Escape") shut();
+  if (e.key === "ArrowLeft") step(-1);
+  if (e.key === "ArrowRight") step(1);
+});
+
+fetch("manifest.json")
+  .then((r) => r.json())
+  .then((d) => {
+    all = d.items || [];
+    const c = d.counts || {};
+    tally.innerHTML = `
+      <span><b>${c.shown ?? all.length}</b><span>pieces</span></span>
+      <span><b>${c.images ?? 0}</b><span>photographs</span></span>
+      <span><b>${c.videos ?? 0}</b><span>films</span></span>
+      <span><b>${mb(c.totalBytes ?? 0)}</b><span>in total</span></span>`;
+
+    const years = [...new Set(all.map((i) => i.date.slice(0, 4)).filter(Boolean))].sort();
+    bar.innerHTML = [
+      `<button class="pill" data-f="all" aria-pressed="true">Everything</button>`,
+      `<button class="pill" data-f="photo" aria-pressed="false">Photographs</button>`,
+      `<button class="pill" data-f="film" aria-pressed="false">Films</button>`,
+      ...years.map((y) => `<button class="pill" data-f="${y}" aria-pressed="false">${y}</button>`),
+    ].join("");
+    for (const p of bar.querySelectorAll(".pill")) {
+      p.addEventListener("click", () => {
+        filter = p.dataset.f;
+        for (const q of bar.querySelectorAll(".pill")) q.setAttribute("aria-pressed", String(q === p));
+        apply();
+      });
+    }
+
+    // Say plainly what is not here and why, rather than letting somebody
+    // wonder where the rest of the photographs went.
+    const heic = Object.entries(d.excluded || {})
+      .filter(([k]) => k.includes("heic"))
+      .reduce((n, [, v]) => n + v, 0);
+    const dark = Object.entries(d.excluded || {})
+      .filter(([k]) => k.startsWith("shard offline"))
+      .reduce((n, [, v]) => n + v, 0);
+    if (heic || dark) {
+      document.getElementById("aside-slot").innerHTML = `
+        <div class="aside">
+          <h3>Not everything is here yet</h3>
+          <p>
+            ${heic ? `<strong>${heic} photographs are in HEIC</strong>, the format iPhones save by default,
+              and no browser will display it — they need converting to JPEG before they can be shown. ` : ""}
+            ${dark ? `<strong>${dark} more</strong> sit in volumes whose hosting is currently switched off. ` : ""}
+            Everything is safe where it is; this page shows what a browser can actually open today.
+          </p>
+        </div>`;
+    }
+
+    apply();
+  })
+  .catch(() => {
+    grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:var(--text-faint);font-family:var(--mono)">The archive index could not be loaded.</p>`;
+  });
+</script>
+
+</body>
+</html>
