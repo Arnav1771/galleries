@@ -22,16 +22,6 @@
   },
   {
    "repo": "ANNO-Gallery-Photos",
-   "path": "batch-04/IMG_20200611_191100 (1).jpg",
-   "url": "https://arnav1771.github.io/ANNO-Gallery-Photos/batch-04/IMG_20200611_191100 (1).jpg",
-   "kind": "image",
-   "ext": "jpg",
-   "size": 5422842,
-   "name": "IMG_20200611_191100 (1).jpg",
-   "date": "2020-06-11"
-  },
-  {
-   "repo": "ANNO-Gallery-Photos",
    "path": "batch-04/IMG_20200611_191100.jpg",
    "url": "https://arnav1771.github.io/ANNO-Gallery-Photos/batch-04/IMG_20200611_191100.jpg",
    "kind": "image",
@@ -1582,10 +1572,10 @@
   }
  ],
  "counts": {
-  "shown": 158,
-  "images": 37,
+  "shown": 157,
+  "images": 36,
   "videos": 121,
-  "totalBytes": 4161301109
+  "totalBytes": 4155878267
  },
  "excluded": {
   "format a browser cannot show (heic)": 91,
@@ -1599,6 +1589,7 @@
   "shard offline: ANNO-Gallery-Photos5-b6": 1,
   "shard offline: ANNO-Gallery-Photos5-b7": 1,
   "shard offline: ANNO-Gallery-Photos5-b8": 1,
-  "shard offline: ANNO-Gallery-Photos5-b9": 1
+  "shard offline: ANNO-Gallery-Photos5-b9": 1,
+  "file missing from its volume": 1
  }
 }
