@@ -15,61 +15,12 @@
    "key": "anno",
    "title": "ANNO Gallery",
    "repo": "ANNO-Gallery",
-   "blurb": "Photographs and films, 2020 to 2025.",
-   "url": "anno/",
-   "live": true,
+   "blurb": "Private. The archive is not published.",
+   "url": "https://github.com/Arnav1771/ANNO-Gallery",
+   "live": false,
    "parts": 14,
-   "partsLive": 14,
-   "openable": [
-    {
-     "name": "ANNO-Gallery-Photos",
-     "url": "https://arnav1771.github.io/ANNO-Gallery-Photos/"
-    },
-    {
-     "name": "ANNO-Gallery-photos2-b1",
-     "url": "https://arnav1771.github.io/ANNO-Gallery-photos2-b1/"
-    },
-    {
-     "name": "ANNO-Gallery-photos2-b2",
-     "url": "https://arnav1771.github.io/ANNO-Gallery-photos2-b2/"
-    },
-    {
-     "name": "ANNO-Gallery-photos2-b3",
-     "url": "https://arnav1771.github.io/ANNO-Gallery-photos2-b3/"
-    },
-    {
-     "name": "ANNO-Gallery-photos2-b4",
-     "url": "https://arnav1771.github.io/ANNO-Gallery-photos2-b4/"
-    },
-    {
-     "name": "ANNO-Gallery-Photos3-b1",
-     "url": "https://arnav1771.github.io/ANNO-Gallery-Photos3-b1/"
-    },
-    {
-     "name": "ANNO-Gallery-Photos3-b2",
-     "url": "https://arnav1771.github.io/ANNO-Gallery-Photos3-b2/"
-    },
-    {
-     "name": "ANNO-Gallery-Photos4-b1",
-     "url": "https://arnav1771.github.io/ANNO-Gallery-Photos4-b1/"
-    },
-    {
-     "name": "ANNO-Gallery-Photos4-b2",
-     "url": "https://arnav1771.github.io/ANNO-Gallery-Photos4-b2/"
-    },
-    {
-     "name": "ANNO-Gallery-Photos5-b1",
-     "url": "https://arnav1771.github.io/ANNO-Gallery-Photos5-b1/"
-    },
-    {
-     "name": "ANNO-Gallery-Photos6-b1",
-     "url": "https://arnav1771.github.io/ANNO-Gallery-Photos6-b1/"
-    },
-    {
-     "name": "ANNO-Gallery-Photos6-b2",
-     "url": "https://arnav1771.github.io/ANNO-Gallery-Photos6-b2/"
-    }
-   ]
+   "partsLive": 0,
+   "openable": []
   },
   {
    "key": "sam",
